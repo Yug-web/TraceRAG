@@ -1,0 +1,125 @@
+{
+  "benchmark_id": "tracerag-synthetic-v1",
+  "version": 1,
+  "license": "CC0-1.0",
+  "description": "Synthetic passages written for TraceRAG retrieval and grounded-answer evaluation.",
+  "documents": [
+    {
+      "document_id": "10000000-0000-4000-8000-000000000001",
+      "filename": "ocean_climate_notes.pdf",
+      "chunks": [
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000001",
+          "page_number": 1,
+          "chunk_index": 0,
+          "text": "The Gulf Stream transports warm Atlantic water northward. This heat transport moderates winter temperatures in Western Europe."
+        },
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000002",
+          "page_number": 2,
+          "chunk_index": 1,
+          "text": "Thermohaline circulation is driven by seawater density differences caused by temperature and salinity. Colder, saltier water tends to sink."
+        },
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000003",
+          "page_number": 3,
+          "chunk_index": 2,
+          "text": "As ocean water warms it expands. This thermal expansion contributes to global mean sea-level rise."
+        }
+      ]
+    },
+    {
+      "document_id": "10000000-0000-4000-8000-000000000002",
+      "filename": "solar_garden_guide.pdf",
+      "chunks": [
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000004",
+          "page_number": 1,
+          "chunk_index": 0,
+          "text": "A photovoltaic cell converts sunlight directly into electrical energy. Most commercial panels use silicon semiconductor cells."
+        },
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000005",
+          "page_number": 2,
+          "chunk_index": 1,
+          "text": "During photosynthesis, leaves use sunlight to convert carbon dioxide and water into sugars. The plant stores the captured energy chemically."
+        },
+        {
+          "chunk_id": "20000000-0000-4000-8000-000000000006",
+          "page_number": 3,
+          "chunk_index": 2,
+          "text": "Dark solar panels can become hot in direct sun. An air gap beneath a rooftop panel helps carry excess heat away."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "q-gulf-stream",
+      "query": "How does the Gulf Stream affect Western Europe's winters?",
+      "relevant_chunk_ids": ["20000000-0000-4000-8000-000000000001"],
+      "expected_status": "answered",
+      "facts": [
+        {
+          "fact_id": "warm-water-moderation",
+          "accepted_phrases": ["moderates winter temperatures", "warmer winters", "milder winters"],
+          "supporting_chunk_ids": ["20000000-0000-4000-8000-000000000001"]
+        }
+      ]
+    },
+    {
+      "question_id": "q-circulation-driver",
+      "query": "What drives thermohaline circulation?",
+      "relevant_chunk_ids": ["20000000-0000-4000-8000-000000000002"],
+      "expected_status": "answered",
+      "facts": [
+        {
+          "fact_id": "density-temperature-salinity",
+          "accepted_phrases": ["density differences caused by temperature and salinity", "temperature and salinity differences"],
+          "supporting_chunk_ids": ["20000000-0000-4000-8000-000000000002"]
+        }
+      ]
+    },
+    {
+      "question_id": "q-ocean-two-effects",
+      "query": "Name two documented ways the ocean affects climate or sea level.",
+      "relevant_chunk_ids": [
+        "20000000-0000-4000-8000-000000000001",
+        "20000000-0000-4000-8000-000000000003"
+      ],
+      "expected_status": "answered",
+      "facts": [
+        {
+          "fact_id": "heat-transport",
+          "accepted_phrases": ["transports warm Atlantic water", "heat transport"],
+          "supporting_chunk_ids": ["20000000-0000-4000-8000-000000000001"]
+        },
+        {
+          "fact_id": "thermal-expansion",
+          "accepted_phrases": ["thermal expansion", "warms it expands"],
+          "supporting_chunk_ids": ["20000000-0000-4000-8000-000000000003"]
+        }
+      ]
+    },
+    {
+      "question_id": "q-photovoltaic-distractor",
+      "query": "What technology converts sunlight directly into electricity?",
+      "relevant_chunk_ids": ["20000000-0000-4000-8000-000000000004"],
+      "expected_status": "answered",
+      "facts": [
+        {
+          "fact_id": "photovoltaic-cell",
+          "accepted_phrases": ["photovoltaic cell", "solar cell"],
+          "supporting_chunk_ids": ["20000000-0000-4000-8000-000000000004"]
+        }
+      ]
+    },
+    {
+      "question_id": "q-unanswerable-capital",
+      "query": "What is the capital of France?",
+      "relevant_chunk_ids": [],
+      "expected_status": "insufficient_evidence",
+      "facts": []
+    }
+  ]
+}
