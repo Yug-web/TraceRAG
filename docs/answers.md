@@ -37,7 +37,8 @@ generation deadline.
 Citation validation establishes source membership, NOT factual correctness or
 claim support. Prompt instructions cannot guarantee resistance to prompt injection.
 Similarity is not confidence. Extraction errors, retrieval misses and truncation
-can omit evidence. No answer-quality or retrieval-quality evaluation is claimed.
+can omit evidence. The small synthetic benchmark measures offline retrieval ranking;
+it does not establish live answer quality or end-to-end production retrieval quality.
 
 ## Tests and browser verification
 
@@ -47,8 +48,10 @@ database, synthetic PDFs, deterministic embeddings and mocked Gemini responses.
 TRACERAG_REAL_MODEL_TESTS=1 enables the optional real embedding test.
 No automated tests call Gemini.
 
-No live Gemini request was performed: the configured backend key was absent.
-Mocks do not prove provider connectivity, credentials, model availability or quality.
+Live Gemini requests have reached the provider, but previous attempts ended in HTTP
+503 temporary-unavailability responses or timeouts. No successful live grounded answer
+has been verified. Mocks do not prove provider connectivity, credentials, model
+availability, or answer quality.
 
 1. Configure the key privately and an available model; restart the backend.
 2. Start PostgreSQL, apply migrations and start backend/frontend as in README.

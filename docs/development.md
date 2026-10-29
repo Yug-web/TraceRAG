@@ -34,8 +34,9 @@ Selected versions resolved and checked for milestone 1:
 | TypeScript | 6.0.x (exact patch in package-lock.json) |
 | Vitest / ESLint | 5.0.5 / 10.13.0 |
 
-Starlette emits a deprecation warning for HTTPX in TestClient. The seven backend
-tests pass; a future maintenance change should migrate to the recommended transport.
+Starlette emits a deprecation warning for HTTPX in TestClient. The latest local Stage G
+backend run passed 111 tests with one optional real-model test skipped; a future
+maintenance change should migrate to the recommended transport.
 
 The Vite scaffold initially selected TypeScript 7, which conflicted with
 typescript-eslint's declared <6.1 peer range. TypeScript is constrained to 6.0.x.
@@ -61,8 +62,9 @@ user approval; do not push automatically. Do not commit .env, virtual environmen
 node_modules, uploads, private datasets, or build outputs.
 
 GitHub Actions runs backend tests/lint/format checks and frontend tests/lint/type
-checking/build on push and pull request. A workflow file is not evidence of a hosted
-CI run: no remote repository or hosted run has been created in this milestone.
+checking/build on push and pull request. The initial published `main` run completed
+successfully for both jobs on commit `0e410a1`; later workflow status must be checked
+on GitHub rather than inferred from the file.
 
 ## Database setup
 
@@ -89,12 +91,18 @@ uv run --frozen python scripts/local_postgres.py stop
 ```
 
 Alternatively, install Docker and set POSTGRES_PASSWORD in the shell, then run
-docker compose up -d db from the repository root. The Compose service uses the
-pgvector PostgreSQL 18 image and the same local port; do not start both databases at
-once. Put a matching postgresql+psycopg:// URL in backend/.env, then run Alembic.
-The pg18 image tag tracks patch updates; pin a reviewed digest for deployment.
-Docker Compose is supplied but has not been exercised on this Docker-less machine.
-No vector extension or embedding columns are required until milestone 3.
+`docker compose up -d db` from the repository root. Compose starts only PostgreSQL,
+not FastAPI or React. The service uses the pgvector PostgreSQL 18 image, binds container
+port 5432 to host `127.0.0.1:55432`, checks readiness with `pg_isready`, and persists
+data in the named `postgres_data` volume. Do not start it alongside the native helper
+on the same port. Put the matching `postgresql+psycopg://` URL in `backend/.env`, then
+run `uv run --frozen alembic upgrade head`; migration 0002 creates the vector extension
+and embedding tables. Stop the service with `docker compose down`. The named volume is
+retained unless `docker compose down --volumes` is deliberately used.
+
+The pg18 tag tracks patch updates; pin a reviewed digest for deployment. Docker is not
+installed on the current verification machine, so this Compose workflow has been
+reviewed but not executed locally.
 
 For an existing database, create an empty database and configure TRACERAG_DATABASE_URL
 with the postgresql+psycopg driver. Alembic is the only schema creation mechanism;
@@ -113,9 +121,14 @@ the app does not auto-create tables. Run alembic upgrade head before serving req
 | CHUNK_SIZE / CHUNK_OVERLAP | 1000 / 200 characters |
 
 Overlap must be smaller than chunk size; nonpositive limits fail settings validation.
-No provider credentials are required. Use --no-access-log with Uvicorn if filenames
-in request URLs should not appear in access logs. Application errors log exception
-types without raw document text, SQL parameters, or database credentials.
+Gemini credentials are not required for upload, indexing, or search, but generated
+answers require a valid `TRACERAG_GEMINI_API_KEY`. Use `--no-access-log` with Uvicorn
+if filenames in request URLs should not appear in access logs. Application errors log
+exception types without raw document text, SQL parameters, or database credentials.
+
+`GET /api/health` checks FastAPI process liveness only. It does not connect to the
+database, load the embedding model, or contact Gemini. A healthy response therefore
+does not establish application readiness.
 
 ## Database tests
 

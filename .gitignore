@@ -16,6 +16,9 @@ coverage/
 uploads/
 *.pdf
 *.db
+*.sqlite
+*.sqlite3
+*.log
 evals/datasets/private/
 evals/results/
 .DS_Store

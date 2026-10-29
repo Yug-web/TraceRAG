@@ -3,7 +3,7 @@
 ## Implemented foundation
 
 The React app calls GET /api/health through a same-origin relative URL. Vite proxies
-/api to 127.0.0.1:8000 during development, avoiding unnecessary CORS configuration.
+/api to 127.0.0.1:8001 during development, avoiding unnecessary CORS configuration.
 The browser verifies both the HTTP status and the JSON contract. It handles failure,
 timeout, retry, and cancellation on unmount.
 
@@ -50,7 +50,7 @@ exhaustion, but decompression can allocate memory before limits are checked. The
 is not an OS security or memory sandbox. Keep this unauthenticated local service off
 public networks until resource isolation, concurrency controls, and access control exist.
 
-## Planned boundaries
+## Implemented boundaries
 
 - API: HTTP validation, response mapping, dependency wiring.
 - Services: ingestion, retrieval, evidence selection, generation, citation validation.
@@ -58,7 +58,7 @@ public networks until resource isolation, concurrency controls, and access contr
 - Schemas: public request/response contracts separate from persistence models.
 - Evaluation: offline scripts and manually reviewed datasets under evals/.
 
-Stage C adds embeddings to persisted chunks without changing them. Ready continues
+Embeddings are added to persisted chunks without changing them. Ready continues
 to mean extraction/chunking succeeded; embedding coverage is a separate API result.
 
 ## Implemented vector baseline
@@ -68,11 +68,22 @@ vectors for existing chunk IDs; publication is atomic and retry-safe. Retrieval 
 the query using the same profile, then performs exact pgvector cosine-distance search
 over fully indexed documents. Source metadata is joined from existing rows, not copied
 into a second potentially divergent store. See retrieval.md for the schema, token
-window pooling policy, model-switch behavior, and limits. No answer generation exists.
+window pooling policy, model-switch behavior, and limits.
 
-Question flow: retrieve → optionally fuse keyword/vector rankings → optionally
-rerank → assess evidence → generate a structured answer → validate citation IDs
-against retrieved sources → return answer and passages or insufficient evidence.
+The implemented question flow is: exact vector retrieval → bounded evidence selection
+→ structured Gemini generation → citation-ID validation against retrieved sources →
+answer and passages, or an explicit insufficient-evidence response. Hybrid retrieval
+and reranking are not implemented.
+
+Chunks are page-bounded character windows (1,000 characters with 200 overlap by
+default), so every result retains one source page and exact character offsets. The
+pinned MiniLM adapter token-windows long inputs, computes weighted pooled embeddings,
+and L2-normalizes each 384-dimensional vector. Indexing stores vectors by embedding
+profile and chunk ID, allowing retry without duplicate chunks or embeddings.
+
+Retrieval encodes the query with the same profile and asks pgvector for exact cosine
+distance over documents with complete embedding coverage. The answer service assigns
+stable source IDs to the ranked results and applies a character budget before generation.
 
 Citation existence is not evidence of claim support. Both need evaluation. Retrieved
 documents are untrusted data, including any instructions they contain.

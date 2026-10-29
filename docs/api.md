@@ -1,4 +1,4 @@
-# API specification — Stage C vector baseline
+# API specification
 
 The executable machine-readable specification is GET /openapi.json; interactive
 documentation is GET /docs. These are generated from FastAPI routes and schemas.

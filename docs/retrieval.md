@@ -2,7 +2,7 @@
 
 Persisted chunks → explicit indexing → local sentence-transformers model → pgvector.
 Search → same model/profile → exact cosine-distance SQL → source metadata.
-No LLM is called. Hybrid ranking and reranking remain later Stage C increments.
+No LLM is called by the search endpoint. Hybrid ranking and reranking are not implemented.
 Distance is a ranking signal, not a correctness or confidence score.
 
 ## Model and configuration
